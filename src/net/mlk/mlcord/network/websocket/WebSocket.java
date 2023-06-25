@@ -274,6 +274,15 @@ public class WebSocket {
         this.listenerThread.start();
     }
 
+    /**
+     * @param listener listener to set
+     * @return instance
+     */
+    public WebSocket setListener(WebSocketListener listener) {
+        this.listener = listener;
+        this.startListener();
+        return this;
+    }
 
     /**
      * @return true if connected
