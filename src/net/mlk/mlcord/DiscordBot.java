@@ -9,7 +9,7 @@ public class DiscordBot {
 
     public DiscordBot(String token) {
         if (token == null) {
-            throw new RuntimeException("Token can't be null");
+            throw new NullPointerException("Token can't be null");
         }
         this.token = token;
         this.discordGateway = new DiscordWebSocket(token);

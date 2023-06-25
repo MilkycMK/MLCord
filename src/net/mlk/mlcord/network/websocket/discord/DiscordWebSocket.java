@@ -6,7 +6,7 @@ import net.mlk.mlcord.discord.Discord;
 import net.mlk.mlcord.network.websocket.WebSocket;
 import net.mlk.mlcord.network.websocket.discord.gateway.Identify;
 import net.mlk.mlcord.network.websocket.discord.gateway.presence.PresenceUpdate;
-import net.mlk.mlcord.network.websocket.discord.gateway.utils.Resume;
+import net.mlk.mlcord.network.websocket.discord.gateway.Resume;
 import net.mlk.mlcord.network.websocket.discord.utils.*;
 import net.mlk.mlcord.network.websocket.utils.WebSocketCloseCode;
 
@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.HashSet;
 
 public class DiscordWebSocket extends WebSocket {
-    private String token;
+    private final String token;
     private int sequence;
     private int intents;
     private String session_id;
