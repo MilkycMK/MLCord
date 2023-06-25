@@ -3,6 +3,7 @@ package net.mlk.mlcord.network.websocket.discord.gateway;
 import net.mlk.jmson.annotations.JsonObject;
 import net.mlk.jmson.utils.JsonConvertible;
 import net.mlk.mlcord.network.websocket.discord.gateway.presence.PresenceUpdate;
+import net.mlk.mlcord.network.websocket.discord.gateway.utils.DiscordClientStatus;
 import net.mlk.mlcord.network.websocket.discord.utils.DiscordEvent;
 import net.mlk.mlcord.network.websocket.discord.utils.DiscordIntent;
 import net.mlk.mlcord.network.websocket.discord.utils.DiscordOpcode;
@@ -23,7 +24,7 @@ public class Identify extends DiscordEvent implements JsonConvertible {
         super(DiscordOpcode.IDENTIFY.getValue());
         this.token = token;
         this.intents = intents;
-        this.properties = new ConnectionProperties(System.getProperty("os.name"), "MLCord", "desktop");
+        this.properties = new ConnectionProperties(System.getProperty("os.name"), "MLCord", DiscordClientStatus.DESKTOP);
     }
 
     /**
@@ -139,10 +140,10 @@ class ConnectionProperties implements JsonConvertible {
 
     }
 
-    public ConnectionProperties(String os, String browser, String device) {
+    public ConnectionProperties(String os, String browser, DiscordClientStatus device) {
         this.os = os;
         this.browser = browser;
-        this.device = device;
+        this.device = device.name().toLowerCase();
     }
 
     /**
