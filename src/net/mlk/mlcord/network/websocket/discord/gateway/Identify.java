@@ -130,7 +130,7 @@ public class Identify extends DiscordEvent implements JsonConvertible {
 
 }
 
-class ConnectionProperties {
+class ConnectionProperties implements JsonConvertible {
     private String os;
     private String browser;
     private String device;
