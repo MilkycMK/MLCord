@@ -1,4 +1,4 @@
-package net.mlk.mlcord.network.websocket.discord.gateway.utils;
+package net.mlk.mlcord.network.websocket.discord.gateway;
 
 import net.mlk.jmson.annotations.JsonObject;
 import net.mlk.jmson.utils.JsonConvertible;
