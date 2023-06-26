@@ -7,7 +7,7 @@ import net.mlk.mlcord.network.websocket.discord.utils.DiscordEvent;
 import java.util.ArrayList;
 
 @JsonObject(key = "d")
-public class HelloRecieveEvent extends DiscordEvent implements JsonConvertible {
+public class HelloReceiveEvent extends DiscordEvent implements JsonConvertible {
     private int heartbeat_interval;
     private final ArrayList<String> _trace = new ArrayList<>();
 

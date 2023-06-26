@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonObject(key="d")
-public class ReadyRecieveEvent extends DispatchEvent implements JsonConvertible {
+public class ReadyReceiveEvent extends DispatchEvent implements JsonConvertible {
     private int v;
     private ExtendedUser user;
     private final ArrayList<Guild> guilds = new ArrayList<>();

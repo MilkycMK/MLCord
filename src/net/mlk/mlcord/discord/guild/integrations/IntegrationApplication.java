@@ -41,7 +41,7 @@ public class IntegrationApplication implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return application icon url or null
      * @see Discord
      * @see ImageFormat

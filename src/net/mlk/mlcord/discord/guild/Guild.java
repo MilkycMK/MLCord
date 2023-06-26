@@ -78,6 +78,8 @@ public class Guild implements JsonConvertible {
     private final List<StageInstance> stage_instances = new ArrayList<>();
     private final List<ScheduledEvent> guild_scheduled_events = new ArrayList<>();
 
+    private Member member;
+
     /**
      * @return Scheduled events in the guild
      */
@@ -275,7 +277,7 @@ public class Guild implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return guild banner url
      * @see Discord
      * @see ImageFormat
@@ -586,7 +588,7 @@ public class Guild implements JsonConvertible {
     /**
      * @return true if unavailable
      */
-    public boolean isUnavailable() {
+    public boolean isAvailable() {
         return this.unavailable;
     }
 

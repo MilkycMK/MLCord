@@ -331,7 +331,28 @@ public class WebSocket {
     }
 
     /**
-     * method that you can override to get specific string by recieve method
+     * @return socket input stream
+     */
+    public BufferedInputStream getInputStream() {
+        return this.inputStream;
+    }
+
+    /**
+     * @return socket output stream
+     */
+    public BufferedOutputStream getOutputStream() {
+        return this.outputStream;
+    }
+
+    /**
+     * @return socket
+     */
+    public Socket getSocket() {
+        return this.socket;
+    }
+
+    /**
+     * method that you can override to get specific string by receive method
      * @param isTextFrame true if message is TextFrame
      * @param responseBytes bytes of response
      * @return message

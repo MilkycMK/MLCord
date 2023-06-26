@@ -5,7 +5,7 @@ import net.mlk.jmson.utils.JsonConvertible;
 import net.mlk.mlcord.discord.message.Message;
 import net.mlk.mlcord.network.websocket.discord.utils.DispatchEvent;
 
-public class MessageRecieveEvent extends DispatchEvent implements JsonConvertible {
+public class MessageReceiveEvent extends DispatchEvent implements JsonConvertible {
     @JsonField(key="d")
     private Message message;
 

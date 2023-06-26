@@ -5,18 +5,22 @@ import net.mlk.jmson.utils.JsonConverter;
 import net.mlk.mlcord.annotations.EventHandler;
 import net.mlk.mlcord.discord.Discord;
 import net.mlk.mlcord.discord.DiscordEventListener;
+import net.mlk.mlcord.discord.guild.Guild;
+import net.mlk.mlcord.discord.guild.events.GuildCreateEvent;
+import net.mlk.mlcord.discord.guild.events.GuildDeleteEvent;
+import net.mlk.mlcord.discord.guild.events.GuildUpdateEvent;
 import net.mlk.mlcord.network.http.discord.DiscordHttpRequestManager;
 import net.mlk.mlcord.network.websocket.discord.DiscordWebSocket;
 import net.mlk.mlcord.network.websocket.discord.gateway.data.GatewayData;
 import net.mlk.mlcord.network.websocket.discord.gateway.data.SessionLimit;
-import net.mlk.mlcord.network.websocket.discord.gateway.events.ReadyRecieveEvent;
+import net.mlk.mlcord.network.websocket.discord.gateway.events.ReadyReceiveEvent;
 import net.mlk.mlcord.network.websocket.discord.gateway.presence.PresenceUpdate;
 import net.mlk.mlcord.network.websocket.discord.utils.DiscordEvent;
+import net.mlk.mlcord.network.websocket.discord.utils.DispatchEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class DiscordBot {
     private final String token;
@@ -24,6 +28,8 @@ public class DiscordBot {
     private GatewayData gatewayData;
     private DiscordHttpRequestManager apiManager;
     private final ArrayList<DiscordEventListener> listeners = new ArrayList<>();
+
+    private final HashMap<String, Guild> guilds = new HashMap<>();
 
     public DiscordBot(String token) {
         if (token == null) {
@@ -115,17 +121,42 @@ public class DiscordBot {
         return this.discordGateway;
     }
 
+    /**
+     * @return user guilds (without unavailable)
+     */
+    public Collection<Guild> getGuilds() {
+        return this.guilds.values();
+    }
 
     /**
      * Invoke methods by received event
      * @param event recieved event
      */
     private void eventHandler(DiscordEvent event) {
-        if (event instanceof ReadyRecieveEvent) { // if ready send notify that we connected
+        // if ready send notify that we connected
+        if (event instanceof ReadyReceiveEvent) {
             synchronized (this) {
+//                DiscordEvent createGuild = this.discordGateway.recieveEvent();
+//                Guild guild = ((GuildCreateEvent) createGuild).getGuild();
+//                this.guilds.put(guild.getId(), guild);
+
                 this.notify();
             }
         }
+
+        // Events for data caching
+        if (event instanceof GuildCreateEvent) {
+            Guild guild = ((GuildCreateEvent) event).getGuild();
+            this.guilds.put(guild.getId(), guild);
+        } else if (event instanceof GuildUpdateEvent) {
+            Guild guild = ((GuildUpdateEvent) event).getGuild();
+            this.guilds.put(guild.getId(), guild);
+        } else if (event instanceof GuildDeleteEvent) {
+            Guild guild = ((GuildDeleteEvent) event).getGuild();
+            this.guilds.remove(guild.getId());
+        }
+
+        // Send events to handlers
         for (DiscordEventListener listener : this.listeners) {
             for (Method method : listener.getClass().getDeclaredMethods()) {
                 EventHandler handler = method.getAnnotation(EventHandler.class);
@@ -141,7 +172,7 @@ public class DiscordBot {
     }
 
     /**
-     * add a Listener class for recieve events
+     * add a Listener class for receive events
      * @param listener class
      * @return current application class
      */

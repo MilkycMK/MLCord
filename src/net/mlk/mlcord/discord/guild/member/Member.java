@@ -123,7 +123,7 @@ public class Member implements JsonConvertible {
 
     /**
      * @param guildId id of the user guild
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return user avatar url
      * @see Discord
      * @see ImageFormat

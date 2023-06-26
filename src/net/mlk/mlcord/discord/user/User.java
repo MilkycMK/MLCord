@@ -118,7 +118,7 @@ public class User implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return user banner url or null
      * @see Discord
      * @see ImageFormat
@@ -166,7 +166,7 @@ public class User implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return user avatar url
      * @see Discord
      * @see ImageFormat

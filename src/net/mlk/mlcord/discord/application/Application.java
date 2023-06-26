@@ -91,7 +91,7 @@ public class Application implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return cover image url
      * @see Discord
      * @see ImageFormat
@@ -199,7 +199,7 @@ public class Application implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return application icon url
      * @see Discord
      * @see ImageFormat

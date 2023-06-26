@@ -56,7 +56,7 @@ public class Team implements JsonConvertible {
     }
 
     /**
-     * @param format image format to recieve
+     * @param format image format to receive
      * @return team icon url
      * @see Discord
      * @see ImageFormat

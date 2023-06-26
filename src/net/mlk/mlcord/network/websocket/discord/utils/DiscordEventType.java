@@ -5,9 +5,9 @@ import net.mlk.mlcord.discord.guild.events.GuildDeleteEvent;
 import net.mlk.mlcord.discord.guild.events.GuildUpdateEvent;
 import net.mlk.mlcord.discord.guild.member.events.GuildMemberUpdateEvent;
 import net.mlk.mlcord.discord.message.events.MessageDeleteEvent;
-import net.mlk.mlcord.discord.message.events.MessageRecieveEvent;
+import net.mlk.mlcord.discord.message.events.MessageReceiveEvent;
 import net.mlk.mlcord.discord.message.events.MessageUpdateEvent;
-import net.mlk.mlcord.network.websocket.discord.gateway.events.ReadyRecieveEvent;
+import net.mlk.mlcord.network.websocket.discord.gateway.events.ReadyReceiveEvent;
 
 public enum DiscordEventType {
     /*
@@ -27,7 +27,7 @@ public enum DiscordEventType {
     /*
      When bot is authorized
      */
-    READY(ReadyRecieveEvent.class),
+    READY(ReadyReceiveEvent.class),
 
     /*
      When bot was resumed
@@ -232,7 +232,7 @@ public enum DiscordEventType {
     /*
      Message was created
      */
-    MESSAGE_CREATE(MessageRecieveEvent.class),
+    MESSAGE_CREATE(MessageReceiveEvent.class),
 
     /*
      Message was updated

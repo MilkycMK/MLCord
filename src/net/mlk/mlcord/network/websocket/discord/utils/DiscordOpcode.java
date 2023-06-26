@@ -7,7 +7,7 @@ public enum DiscordOpcode {
     UNKNOWN_OPCODE(-1),
 
     /*
-     Recieve only
+     Receive only
      An event was dispatched
     */
     DISPATCH(0),
@@ -43,7 +43,7 @@ public enum DiscordOpcode {
     RESUME(6),
 
     /*
-     Recieve only
+     Receive only
      You should attempt to reconnect and resume immediately.
     */
     RECONNECT(7),
