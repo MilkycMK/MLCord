@@ -3,7 +3,13 @@ package net.mlk.mlcord.network.websocket.discord;
 import net.mlk.jmson.Json;
 import net.mlk.jmson.utils.JsonConverter;
 import net.mlk.mlcord.discord.Discord;
+import net.mlk.mlcord.discord.guild.Guild;
+import net.mlk.mlcord.discord.guild.events.GuildCreateEvent;
+import net.mlk.mlcord.discord.guild.events.GuildDeleteEvent;
+import net.mlk.mlcord.discord.message.events.MessageRecieveEvent;
+import net.mlk.mlcord.discord.user.ExtendedUser;
 import net.mlk.mlcord.network.websocket.WebSocket;
+import net.mlk.mlcord.network.websocket.discord.gateway.events.*;
 import net.mlk.mlcord.network.websocket.discord.gateway.Identify;
 import net.mlk.mlcord.network.websocket.discord.gateway.presence.PresenceUpdate;
 import net.mlk.mlcord.network.websocket.discord.gateway.Resume;
@@ -24,6 +30,8 @@ public class DiscordWebSocket extends WebSocket {
     private DiscordWebSocketListener listener;
     private Thread heartBeatThread;
     private boolean waitForACK;
+    private ExtendedUser user;
+    private final HashSet<String> awaitedGuilds = new HashSet<>();
 
     public DiscordWebSocket(String token) {
         this(token, DiscordIntent.getIntentsSet(DiscordIntent.ALL_INTENTS));
@@ -77,15 +85,18 @@ public class DiscordWebSocket extends WebSocket {
     }
 
     private void onMessage(String message) {
-        System.out.println(message);
         if (!Json.isJson(message)) {
+            System.out.println(message);
             return;
         }
         Json payload = new Json(message);
         if (!payload.getString("s").equals("null")) {
             this.sequence = payload.getInteger("s");
         }
-        this.handleOpcode(payload.getInteger("op"), payload);
+
+        if (this.handleOpcode(payload.getInteger("op"), payload)) {
+            System.out.println(message);
+        }
     }
 
     /**
@@ -93,77 +104,80 @@ public class DiscordWebSocket extends WebSocket {
      * if not opcode then check close code
      * @param op opcode of the message
      * @param payload received payload
+     * @return true if it's not from current user
      */
-    private void handleOpcode(int op, Json payload) {
+    private boolean handleOpcode(int op, Json payload) {
         DiscordOpcode opcode = DiscordOpcode.getByCode(op);
         DiscordEvent event = null;
 
-//        if (opcode == DiscordOpcode.DISPATCH) {
-//            event = DispatchEvent.getDispatchEvent(payload);
-//        } else if (opcode == DiscordOpcode.HEARTBEAT) {
-//            event = JsonConverter.convertToObject(payload, HeartBeatReceiveEvent.class);
-//            this.s = event.getSequence() == -1 ? this.s : event.getSequence();
-//            this.sendHeartBeat();
-//        } else if (opcode == DiscordOpcode.RECONNECT) {
-//            event = JsonConverter.convertToObject(payload, ReconnectReceiveEvent.class);
-//            this.reconnect();
-//        } else if (opcode == DiscordOpcode.INVALID_SESSION) {
-//            event = JsonConverter.convertToObject(payload, InvalidSessionReceiveEvent.class);
-//            InvalidSessionReceiveEvent inv = (InvalidSessionReceiveEvent) event;
-//            if (inv.canResume()) {
-//                this.reconnect();
-//            } else {
-//                super.close();
-//                this.connect();
-//            }
-//        } else if (opcode == DiscordOpcode.HELLO) {
-//            event = JsonConverter.convertToObject(payload, HelloReceiveEvent.class);
-//            this.startHeartBeat(((HelloReceiveEvent) event).getHeartBeatInterval());
-//        } else if (opcode == DiscordOpcode.HEARTBEAT_ACK) {
-//            event = JsonConverter.convertToObject(payload, AckReceiveEvent.class);
-//            this.waitForACK = false;
-//        }
+        if (opcode == DiscordOpcode.HELLO) {
+            event = JsonConverter.convertToObject(payload, HelloRecieveEvent.class);
+            this.startHeartBeat(((HelloRecieveEvent) event).getHeartBeatInterval());
+        } else if (opcode == DiscordOpcode.HEARTBEAT_ACK) {
+            event = JsonConverter.convertToObject(payload, AckRecieveEvent.class);
+            this.waitForACK = false;
+        }  else if (opcode == DiscordOpcode.HEARTBEAT) {
+            event = JsonConverter.convertToObject(payload, HeartBeatReceiveEvent.class);
+            this.sequence = event.getSequence() == -1 ? this.sequence : event.getSequence();
+            this.sendHeartBeat();
+        } else if (opcode == DiscordOpcode.INVALID_SESSION) {
+            event = JsonConverter.convertToObject(payload, InvalidSessionRecieveEvent.class);
+            InvalidSessionRecieveEvent inv = (InvalidSessionRecieveEvent) event;
+            if (inv.canResume()) {
+                this.reconnect();
+            } else {
+                super.close();
+                this.connect();
+            }
+        } else if (opcode == DiscordOpcode.RECONNECT) {
+            event = JsonConverter.convertToObject(payload, ReconnectRecieveEvent.class);
+            this.reconnect();
+        } else if (opcode == DiscordOpcode.DISPATCH) {
+            event = DispatchEvent.getDispatchEvent(payload);
+        }
 
         if (event != null) {
             this.handleEvent(event);
         }
+        return true;
     }
 
     /**
      * Check discord events and do something
      * @param event event payload
      */
-    private void handleEvent(DiscordEvent event) {
+    private boolean handleEvent(DiscordEvent event) {
         boolean isUnavailableGuild = false;
         DiscordEventType type = event.getType();
 
-//        if (type == DiscordEventType.READY) {
-//            ReadyReceiveEvent ready = (ReadyReceiveEvent) event;
-//            this.user = ready.getUser();
-//            this.reconnectGateway = ready.getResumeGatewayUrl();
-//            this.session_id = ready.getSessionId();
-//            for (Guild guild : ready.getGuilds()) {
-//                this.awaitedGuilds.add(guild.getId());
-//            }
-//        } else if (type == DiscordEventType.GUILD_CREATE) {
-//            Guild createdGuild = ((GuildCreateEvent) event).getGuild();
-//            isUnavailableGuild = this.awaitedGuilds.remove(createdGuild.getId());
-//        } else if (type == DiscordEventType.GUILD_DELETE) {
-//            Guild deletedGuild = ((GuildDeleteEvent) event).getGuild();
-//            if (deletedGuild.isUnavailable()) {
-//                this.awaitedGuilds.add(deletedGuild.getId());
-//                return;
-//            }
-//        } else if (type == DiscordEventType.MESSAGE_CREATE) {
-//            MessageReceiveEvent receiveEvent = ((MessageReceiveEvent) event);
-//            if (receiveEvent.getMessage().getAuthor().getId().equals(this.user.getId())) {
-//                return;
-//            }
-//        }
+        if (type == DiscordEventType.READY) {
+            ReadyRecieveEvent ready = (ReadyRecieveEvent) event;
+            this.user = ready.getUser();
+            this.reconnectGateway = URI.create(ready.getResumeGatewayUrl());
+            this.session_id = ready.getSessionId();
+            for (Guild guild : ready.getGuilds()) {
+                this.awaitedGuilds.add(guild.getId());
+            }
+        } else if (type == DiscordEventType.GUILD_CREATE) {
+            Guild createdGuild = ((GuildCreateEvent) event).getGuild();
+            isUnavailableGuild = this.awaitedGuilds.remove(createdGuild.getId());
+        } else if (type == DiscordEventType.GUILD_DELETE) {
+            Guild deletedGuild = ((GuildDeleteEvent) event).getGuild();
+            if (deletedGuild.isUnavailable()) {
+                this.awaitedGuilds.add(deletedGuild.getId());
+                return false;
+            }
+        } else if (type == DiscordEventType.MESSAGE_CREATE) {
+            MessageRecieveEvent receiveEvent = ((MessageRecieveEvent) event);
+            if (receiveEvent.getMessage().getAuthor().getId().equals(this.user.getId())) {
+                return false;
+            }
+        }
 
         if (this.listener != null && !isUnavailableGuild) {
             this.listener.onEvent(event);
         }
+        return true;
     }
 
     /**
@@ -220,6 +234,7 @@ public class DiscordWebSocket extends WebSocket {
     /**
      * Check discord close code and do something
      * if not from discord check for websocket
+     *
      * @param op opcode of the message
      */
     @Override

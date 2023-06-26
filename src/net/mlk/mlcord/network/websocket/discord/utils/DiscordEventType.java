@@ -1,6 +1,24 @@
 package net.mlk.mlcord.network.websocket.discord.utils;
 
+import net.mlk.mlcord.discord.guild.events.GuildCreateEvent;
+import net.mlk.mlcord.discord.guild.events.GuildDeleteEvent;
+import net.mlk.mlcord.discord.guild.events.GuildUpdateEvent;
+import net.mlk.mlcord.discord.guild.member.events.GuildMemberUpdateEvent;
+import net.mlk.mlcord.discord.message.events.MessageDeleteEvent;
+import net.mlk.mlcord.discord.message.events.MessageRecieveEvent;
+import net.mlk.mlcord.discord.message.events.MessageUpdateEvent;
+import net.mlk.mlcord.network.websocket.discord.gateway.events.ReadyRecieveEvent;
+
 public enum DiscordEventType {
+    /*
+     Events that do not depend on the following:
+      - HelloRecieveEvent
+      - AckRecieveEvent
+      - InvalidSessionRecieveEvent
+      - ReconnectRecieveEvent
+      - HeartBeatRecieveEvent
+     */
+
     /*
      undefined event
      */
@@ -9,7 +27,7 @@ public enum DiscordEventType {
     /*
      When bot is authorized
      */
-    READY(null),
+    READY(ReadyRecieveEvent.class),
 
     /*
      When bot was resumed
@@ -19,17 +37,17 @@ public enum DiscordEventType {
     /*
      When bot join to guild
      */
-    GUILD_CREATE(null),
+    GUILD_CREATE(GuildCreateEvent.class),
 
     /*
      Sent when a guild is updated
      */
-    GUILD_UPDATE(null),
+    GUILD_UPDATE(GuildUpdateEvent.class),
 
     /*
      Guild became unavailable, or user left/was removed from a guild
      */
-    GUILD_DELETE(null),
+    GUILD_DELETE(GuildDeleteEvent.class),
 
     /*
      Application command permission was updated
@@ -124,7 +142,7 @@ public enum DiscordEventType {
     /*
      Guild member was updated
      */
-    GUILD_MEMBER_UPDATE(null),
+    GUILD_MEMBER_UPDATE(GuildMemberUpdateEvent.class),
 
     /*
      User was removed from a guild
@@ -214,17 +232,17 @@ public enum DiscordEventType {
     /*
      Message was created
      */
-    MESSAGE_CREATE(null),
+    MESSAGE_CREATE(MessageRecieveEvent.class),
 
     /*
      Message was updated
      */
-    MESSAGE_UPDATE(null),
+    MESSAGE_UPDATE(MessageUpdateEvent.class),
 
     /*
      Message was deleted
      */
-    MESSAGE_DELETE(null),
+    MESSAGE_DELETE(MessageDeleteEvent.class),
 
     /*
      Multiple messages were deleted at once
@@ -304,9 +322,9 @@ public enum DiscordEventType {
      */
     AUTO_MODERATION_ACTION_EXECUTION(null);
 
-    private final Class<?> eventClass;
+    private final Class<? extends DispatchEvent> eventClass;
 
-    DiscordEventType(Class<?> eventClass) {
+    DiscordEventType(Class<? extends DispatchEvent> eventClass) {
         this.eventClass = eventClass;
     }
 

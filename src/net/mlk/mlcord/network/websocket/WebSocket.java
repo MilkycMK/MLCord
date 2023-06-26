@@ -350,6 +350,7 @@ public class WebSocket {
     /**
      * Method that contains and work with websocket close codes
      * you can overwrite it with yours
+     *
      * @param code received code
      */
     protected void handleCloseCode(int code, String message) {
@@ -404,7 +405,6 @@ public class WebSocket {
             this.close();
             throw new RuntimeException("Undefined close code " + code + " with message: \"" + message + "\"");
         }
-
     }
 
 }
