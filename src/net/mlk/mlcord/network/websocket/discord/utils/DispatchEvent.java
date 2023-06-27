@@ -10,7 +10,7 @@ public class DispatchEvent extends DiscordEvent implements JsonConvertible {
      * @param payload event payload
      * @return new instance of the given event
      */
-    public static DiscordEvent getDispatchEvent(Json payload) {
+    public static DispatchEvent getDispatchEvent(Json payload) {
         DiscordEventType type = DiscordEventType.getByName(payload.getString("t"));
         if (type == null) {
             return null;
@@ -19,6 +19,6 @@ public class DispatchEvent extends DiscordEvent implements JsonConvertible {
         if (eventClass == null) {
             return null;
         }
-        return (DiscordEvent) JsonConverter.convertToObject(payload, (JsonConvertible) eventClass);
+        return (DispatchEvent) JsonConverter.convertToObject(payload, (JsonConvertible) eventClass);
     }
 }
