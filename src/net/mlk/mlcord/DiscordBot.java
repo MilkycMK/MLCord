@@ -137,6 +137,7 @@ public class DiscordBot {
         if (event instanceof ReadyReceiveEvent) {
             synchronized (this) {
                 // Waiting user guilds
+                // if receive null or another event - break
                 while (true) {
                     String response = this.discordGateway.receive();
                     if (response == null) {
