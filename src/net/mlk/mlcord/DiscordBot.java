@@ -20,6 +20,7 @@ import net.mlk.mlcord.network.websocket.discord.utils.DispatchEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.SocketException;
 import java.util.*;
 
 public class DiscordBot {
@@ -58,6 +59,9 @@ public class DiscordBot {
                     limit.getResetAfter(), this.gatewayData.getShardsCount());
         }
         this.discordGateway.connect();
+        try {
+            this.discordGateway.getSocket().setSoTimeout(2000); // set timeout for waiting group of events
+        } catch (SocketException ignored) { } // not interested in that exception
         synchronized (this) { // waiting a ready event
             try {
                 this.wait();
