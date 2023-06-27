@@ -17,6 +17,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class WebSocket {
     private URI uri;
@@ -72,11 +74,31 @@ public class WebSocket {
      */
     public String receive() {
         try {
-            int firstByte = this.inputStream.read();
-            if (firstByte == -1) {
+            // Waiting 2 seconds and if we don't receive response return null
+            // THIS IS ONLY FOR DISCORD WEB SOCKET
+            CountDownLatch latch = new CountDownLatch(1);
+            byte[] firstTwoBytes = new byte[2];
+            Thread readThread = new Thread(() -> {
+                try {
+                    int readBytes = this.inputStream.read(firstTwoBytes, 0, 2);
+                    latch.countDown();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            readThread.start();
+            boolean bytesReceived = latch.await(2, TimeUnit.SECONDS);
+            if (!bytesReceived) {
                 return null;
             }
-            int secondByte = this.inputStream.read();
+            int firstByte = firstTwoBytes[0] & 0xFF;
+            int secondByte = firstTwoBytes[1] & 0xFF;
+            // DEFAULT RECEIVE METHODS
+//            int firstByte = this.inputStream.read();
+//            if (firstByte == -1) {
+//                return null;
+//            }
+//            int secondByte = this.inputStream.read();
             boolean isTextFrame = firstByte == 0x81;
             boolean isCloseFrame = firstByte == WebSocketFrame.CLOSE_FRAME.getFrameByte() ||
                     firstByte == WebSocketFrame.CLOSE_FRAME_WITH_REASON.getFrameByte();
@@ -115,7 +137,7 @@ public class WebSocket {
             }
 
             return this.recieveString(isTextFrame, byteArrayOutputStream.toByteArray());
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
