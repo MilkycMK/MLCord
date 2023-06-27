@@ -74,26 +74,11 @@ public class WebSocket {
      */
     public String receive() {
         try {
-            // Waiting 2 seconds and if we don't receive response return null
-            // THIS IS ONLY FOR DISCORD WEB SOCKET
-            byte[] firstTwoBytes = new byte[2];
-            try {
-                this.socket.setSoTimeout(2000);
-                this.inputStream.read(firstTwoBytes, 0, 2);
-            } catch (SocketTimeoutException e) {
+            int firstByte = this.inputStream.read();
+            if (firstByte == -1) {
                 return null;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-            int firstByte = firstTwoBytes[0] & 0xFF;
-            int secondByte = firstTwoBytes[1] & 0xFF;
-
-            // DEFAULT RECEIVE METHODS
-//            int firstByte = this.inputStream.read();
-//            if (firstByte == -1) {
-//                return null;
-//            }
-//            int secondByte = this.inputStream.read();
+            int secondByte = this.inputStream.read();
             boolean isTextFrame = firstByte == 0x81;
             boolean isCloseFrame = firstByte == WebSocketFrame.CLOSE_FRAME.getFrameByte() ||
                     firstByte == WebSocketFrame.CLOSE_FRAME_WITH_REASON.getFrameByte();
@@ -132,6 +117,8 @@ public class WebSocket {
             }
 
             return this.recieveString(isTextFrame, byteArrayOutputStream.toByteArray());
+        } catch (SocketTimeoutException e) {
+            return null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
