@@ -136,9 +136,19 @@ public class DiscordBot {
         // if ready send notify that we connected
         if (event instanceof ReadyReceiveEvent) {
             synchronized (this) {
-//                DiscordEvent createGuild = this.discordGateway.recieveEvent();
-//                Guild guild = ((GuildCreateEvent) createGuild).getGuild();
-//                this.guilds.put(guild.getId(), guild);
+                // Waiting user guilds
+                while (true) {
+                    String response = this.discordGateway.receive();
+                    if (response == null) {
+                        break;
+                    }
+                    DispatchEvent ev = DispatchEvent.getDispatchEvent(new Json(response));
+                    if (!(ev instanceof GuildCreateEvent)) {
+                        break;
+                    }
+                    Guild guild = ((GuildCreateEvent) ev).getGuild();
+                    this.guilds.put(guild.getId(), guild);
+                }
 
                 this.notify();
             }
