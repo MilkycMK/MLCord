@@ -10,6 +10,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -77,16 +78,12 @@ public class WebSocket {
             // THIS IS ONLY FOR DISCORD WEB SOCKET
             byte[] firstTwoBytes = new byte[2];
             try {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        this.socket.setSoTimeout(2000);
-                        this.inputStream.read(firstTwoBytes, 0, 2);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).join();
-            } catch (CompletionException e) {
+                this.socket.setSoTimeout(2000);
+                this.inputStream.read(firstTwoBytes, 0, 2);
+            } catch (SocketTimeoutException e) {
                 return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
             int firstByte = firstTwoBytes[0] & 0xFF;
             int secondByte = firstTwoBytes[1] & 0xFF;
